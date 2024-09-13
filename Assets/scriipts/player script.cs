@@ -98,6 +98,7 @@ public class Player : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDodge && !isDodging)
         {
+            
             // 캐릭터가 바라보는 방향에 따라 dodgeDirection 설정
             if (transform.localScale.x > 0)  // 오른쪽을 보고 있는 경우
             {
@@ -118,7 +119,7 @@ public class Player : MonoBehaviour
         bool isMoving = false;
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        if (!stateInfo.IsName("attack"))
+        if (!stateInfo.IsName("attack") && !isDodging)
         {
             if (Input.GetKey(KeyCode.RightArrow))
             {
@@ -154,38 +155,34 @@ public class Player : MonoBehaviour
     IEnumerator Dodge()
     {
         isDodging = true;        // 회피 중 상태 설정
-        canDodge = false;        // 회피 쿨타임 동안 회피 불가
+        canDodge = true;         // 항상 회피 가능
 
         // 무적 상태 시작
         StartCoroutine(Invincibility(dodgeDuration));
-
-        
 
         // 회피 동작 지속 시간 동안 캐릭터 이동
         float dodgeTime = 0f;
         while (dodgeTime < dodgeDuration)
         {
+
+            
             rbody.velocity = dodgeDirection * dodgeSpeed;
             dodgeTime += Time.deltaTime;
             yield return null;
+            
         }
 
         rbody.velocity = Vector2.zero;  // 회피 종료 후 속도 0
-        isDodging = false;           // 회피 종료
-
-        // 쿨타임 대기
-        yield return new WaitForSeconds(dodgeCooldown);
-        canDodge = true;             // 다시 회피 가능
+        isDodging = false;              // 회피 종료
     }
+
     IEnumerator Invincibility(float duration)
     {
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Enemies"), true);
-       
 
         yield return new WaitForSeconds(duration);
 
         Physics2D.IgnoreLayerCollision(LayerMask.NameToLayer("Player"), LayerMask.NameToLayer("Enemies"), false);
-        
     }
     void FixedUpdate()
     {
@@ -207,4 +204,5 @@ public class Player : MonoBehaviour
             rbody.velocity = new Vector2(-moveSpeed, rbody.velocity.y);
         }
     }
+    
 }
